@@ -1,0 +1,80 @@
+# ================================
+# PSTHM Unified Config
+# ================================
+
+paths:
+  dataset: "../../PaleoSTeHM_UI/Holocene_Spatiotemporal_analysis/Data/US_Atlantic_Coast_for_ESTGP.csv"
+  output_dir: "../PaleoSTeHM_UI/Holocene_Spatiotemporal_analysis/Outputs"
+
+time_axes:
+  paleo_unit: "cal_yr_BP"
+  modern_unit: "CE"
+  reference_year: 1950
+
+gp_model:
+  num_iterations: 500
+  learning_rate: 0.2
+  jitter: 1.0e-5
+  decay_r: 1
+  step_size: 100
+  gpu: false
+  run_optimization: true
+  fixed_seed: false
+  seed: 42
+  equal_kernels: null
+
+  kernels:
+    global_temporal:
+      type: "Matern32"
+      # Global temporal variability shared across space (Holocene-scale smoothness).
+      lengthscale_prior: [100.0, 20000.0]
+      variance_prior: [1.0e-5, 1000.0]
+    regional_linear:
+      temporal_variance_prior: [1.0e-12, 1.0e-6]
+      # s_lengthscale in radians: [0.01, 0.5] ≈ [64 km, 3185 km]
+      spatial_lengthscale_prior: [0.01, 0.5]
+    regional_nonlinear:
+      temporal_variance_prior: [1.0e-6, 100.0]
+      temporal_lengthscale_prior: [100.0, 20000.0]
+      # s_lengthscale in radians: [0.01, 0.5] ≈ [64 km, 3185 km]
+      spatial_lengthscale_prior: [0.01, 0.5]
+    local_nonlinear:
+      temporal_variance_prior: [1.0e-6, 1.0]
+      temporal_lengthscale_prior: [100.0, 20000.0]
+      # s_lengthscale in radians: [0.001, 0.01] ≈ [6.4 km, 64 km]
+      spatial_lengthscale_prior: [0.001, 0.01]
+    sp_whitenoise:
+      variance_prior: [1.0e-7, 1.0e-1]
+    whitenoise:
+      variance_prior: [1.0e-7, 1.0]
+
+temporal_test_age:
+  # Start age in years BP (cal_yr_BP).
+  start: 0
+  # End age in years BP (cal_yr_BP).
+  end: 14000
+  # Interval between ages (years). Positive number; end included if aligned.
+  interval: 200
+
+spatial_test_age:
+  # Start age in years BP (cal_yr_BP).
+  start: 0
+  # End age in years BP (cal_yr_BP).
+  end: 14000
+  # Interval between ages (years). Positive number; end included if aligned.
+  interval: 1000
+
+# Optional: use forced hyperparameter values
+initial_params:
+  "global_kernel_lengthscale (yr)": 9.473000e03
+  "global_kernel_variance (m^2)": 1.000000e-04
+  "regional_linear_kernel_variance (m^2)": 2.704000e-07
+  "regional_linearl_kernel_spatil_lengthscale (km)": 1.920000e01
+  "regional_nl_kernel_variance (m^2)": 2.280100e00
+  "regional_nl_kernel_lengthscale (yr)": 7.420000e02
+  "regional_nl_kernel_spatial_lengthscale (km)": 5.230000e02
+  "local_nl_kernel_variance (m^2)": 2.304000e-01
+  "local_nl_kernel_lengthscale (yr)": 3.000000e02
+  "local_nl_spatial_spatial_lengthscale (km)": 6.400000e01
+  "sp_whitenoise_kernel_variance (m^2)": 4.900000e-05
+  "whitenoise_kernel_variance (m^2)": 2.500000e-07
