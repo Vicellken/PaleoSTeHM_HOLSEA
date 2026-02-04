@@ -183,4 +183,4 @@ cython_debug/
 
 *.DS_Store
 /PaleoSTeHM_UI/Holocene_Spatiotemporal_analysis/Outputs
-/Tutorials
+# /Tutorials
