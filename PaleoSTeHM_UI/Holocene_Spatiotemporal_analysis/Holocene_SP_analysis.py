@@ -1676,24 +1676,36 @@ def build_diff_dataframe(
     longitudes,
     total_mean_a,
     total_mean_b,
+    total_mean_c=None,
     label_a="lin25",
     label_b="hky",
+    label_c="hky_l1_2",
 ):
     """
     Build a long-form DataFrame with total_mean and difference values.
     """
     records = []
     for i, time_bp in enumerate(test_age):
-        diff = total_mean_a[i] - total_mean_b[i]
+        diff_ab = total_mean_a[i] - total_mean_b[i]
+        if total_mean_c is not None:
+            diff_ac = total_mean_a[i] - total_mean_c[i]
+            diff_bc = total_mean_b[i] - total_mean_c[i]
         for j in range(len(latitudes)):
-            records.append(
-                {
-                    "time_bp": time_bp,
-                    "lat": latitudes[j],
-                    "lon": longitudes[j],
-                    f"{label_a}_total_mean_m": total_mean_a[i][j],
-                    f"{label_b}_total_mean_m": total_mean_b[i][j],
-                    "diff_m": diff[j],
-                }
-            )
+            record = {
+                "time_bp": time_bp,
+                "lat": latitudes[j],
+                "lon": longitudes[j],
+                f"{label_a}_total_mean_m": total_mean_a[i][j],
+                f"{label_b}_total_mean_m": total_mean_b[i][j],
+                "diff_m": diff_ab[j],
+            }
+            if total_mean_c is not None:
+                record.update(
+                    {
+                        f"{label_c}_total_mean_m": total_mean_c[i][j],
+                        f"diff_{label_a}_minus_{label_c}_m": diff_ac[j],
+                        f"diff_{label_b}_minus_{label_c}_m": diff_bc[j],
+                    }
+                )
+            records.append(record)
     return pd.DataFrame.from_records(records)
