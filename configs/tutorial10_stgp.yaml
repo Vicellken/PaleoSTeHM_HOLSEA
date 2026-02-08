@@ -1,0 +1,98 @@
+# ================================
+# Tutorial 10 Config (used in demo/10.reproduce_STGP_with_physical_model.ipynb)
+# ================================
+
+paths:
+  # Holocene RSL dataset (CSV)
+  paleo_rsl: "../Data/US_Atlantic_Coast_for_ESTGP.csv"
+
+  # Tutorial physical-model inputs (NumPy arrays; paths resolved relative to this YAML)
+  gia_ice7g_rsl_npy: "../Tutorials/3.ST_GP/ice7g_rsl.npy"
+  gia_gowan_rsl_npy: "../Tutorials/3.ST_GP/gowan_rsl.npy"
+
+  # Outputs
+  output_dir: "../PaleoSTeHM_UI/Holocene_Spatiotemporal_analysis/Outputs"
+  # ParamStore files used by Tutorial 10 (save/load)
+  trained_param_store_no_physical: "../PaleoSTeHM_UI/Holocene_Spatiotemporal_analysis/Outputs/Trained_Models/Holocene_STGP_no_physical.pt"
+  trained_param_store_single_gia: "../PaleoSTeHM_UI/Holocene_Spatiotemporal_analysis/Outputs/Trained_Models/Holocene_STGP_single_gia.pt"
+  trained_param_store_multi_gia: "../PaleoSTeHM_UI/Holocene_Spatiotemporal_analysis/Outputs/Trained_Models/Holocene_STGP_multi_gia.pt"
+
+time_axes:
+  # Tutorial 10 uses CE time internally (negative = BCE).
+  paleo_unit: "CE"
+  modern_unit: "CE"
+  reference_year: 1950
+
+gp_model:
+  num_iterations: 500
+  learning_rate: 0.2
+  jitter: 1.0e-5
+  decay_r: 1
+  step_size: 100
+  gpu: false
+
+  kernels:
+    global_temporal:
+      type: "Matern32"
+      # Global temporal variability shared across space (Holocene-scale smoothness).
+      lengthscale_prior: [100.0, 20000.0]
+      variance_prior: [1.0e-4, 1000.0]
+    regional_linear:
+      temporal_variance_prior: [1.0e-12, 1.0e-6]
+      # s_lengthscale in radians: [0.01, 0.5] ≈ [64 km, 3185 km]
+      spatial_lengthscale_prior: [0.01, 0.5]
+    regional_nonlinear:
+      temporal_variance_prior: [0.05, 100.0]
+      temporal_lengthscale_prior: [500.0, 5000.0]
+      # s_lengthscale in radians: [0.05, 0.25] ≈ [318 km, 1592 km]
+      spatial_lengthscale_prior: [0.05, 0.25]
+    local_nonlinear:
+      temporal_variance_prior: [0.01, 10.0]
+      temporal_lengthscale_prior: [100.0, 2000.0]
+      # s_lengthscale in radians: [0.01, 0.05] ≈ [64 km, 318 km]
+      spatial_lengthscale_prior: [0.01, 0.05]
+    multi_gia_local_nonlinear:
+      temporal_variance_prior: [0.25, 900.0]
+      temporal_lengthscale_prior: [100.0, 20000.0]
+      # s_lengthscale in radians: [0.05, 0.3] ≈ [318 km, 1911 km]
+      spatial_lengthscale_prior: [0.05, 0.3]
+    sp_whitenoise:
+      variance_prior: [1.0e-7, 1.0]
+    whitenoise:
+      variance_prior: [1.0e-4, 100.0]
+
+prediction_grid:
+  paleo_time:
+    # CE years for tutorial notebooks
+    start: -9000
+    end: 2010
+    step: 10
+  paleo_time_extended:
+    # CE years for decomposition plots spanning -10000
+    start: -10000
+    end: 2010
+    step: 10
+
+# Per-section run settings for Tutorial 10 (override gp_model defaults as needed)
+runs:
+  stgp_no_physical:
+    num_iterations: 500
+    learning_rate: 0.2
+    jitter: 1.0e-5
+    decay_r: 0.8
+    step_size: 50
+    gpu: false
+  stgp_single_gia:
+    num_iterations: 200
+    learning_rate: 0.3
+    jitter: 1.0e-5
+    decay_r: 0.8
+    step_size: 50
+    gpu: false
+  stgp_multi_gia:
+    num_iterations: 300
+    learning_rate: 0.2
+    jitter: 1.0e-5
+    decay_r: 0.8
+    step_size: 25
+    gpu: false
